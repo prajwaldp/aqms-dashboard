@@ -7,7 +7,7 @@ A realtime IoT Dashboard using ActionCable
 ```
 $ git clone ... && cd ...
 $ bundle install
-```
+``
 
 In one terminal run
 ```
@@ -29,4 +29,4 @@ In production, this would be a script that connects to the UDP Server created wi
 - `IotDataChannel#stream_sensor_data` starts a UDP Server
     - It accepts data from clients (the fake sensor value generating program or a client running on a Raspberry Pi)
     - Keeps broadcasting data from the client to the `iot_data_channel` is a `Thread`
-
+- `app/assets/javascripts/channels/iot_data.coffee` recieves sensor data on the client side and `update_dom()` is called with the received data. The graphs/visualization on the browser must be altered using this newly received data and JavaScript
