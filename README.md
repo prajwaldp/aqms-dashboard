@@ -1,24 +1,32 @@
-# README
+# AQMS Dashboard
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+A realtime IoT Dashboard using ActionCable
 
-Things you may want to cover:
+## Usage
 
-* Ruby version
+```
+$ git clone ... && cd ...
+$ bundle install
+```
 
-* System dependencies
+In one terminal run
+```
+$ rails server
+```
 
-* Configuration
+In another terminal run
+```
+$ ./bin/fake_sensor
+```
 
-* Database creation
+In production, this would be a script that connects to the UDP Server created within the Rails codebase and sends data to it in stringified JSON format
 
-* Database initialization
+## Walkthrough
 
-* How to run the test suite
+- There is only one route `pages_controller#dashboard`
+- The `IotDataChannel` in `app/assets/channels` is the channel for sensor data
+- When a client subscribes to `IotDataChannel`, the client is streamed data from `iot_data_channel`
+- `IotDataChannel#stream_sensor_data` starts a UDP Server
+    - It accepts data from clients (the fake sensor value generating program or a client running on a Raspberry Pi)
+    - Keeps broadcasting data from the client to the `iot_data_channel` is a `Thread`
 
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
