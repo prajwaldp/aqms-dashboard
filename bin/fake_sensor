@@ -1,0 +1,71 @@
+#!/usr/bin/env ruby
+
+# Creates a UDP client that connects to a UDP Server listening
+# on 0.0.0.0:1234. Then sends fake sensor data in stringified
+# json format
+
+require 'socket'
+require 'json'
+
+
+# The fake data generated is a random gaussian distribution.
+
+class RandomGaussian
+  def initialize(mean, stddev, rand_helper = lambda { Kernel.rand })
+    @rand_helper = rand_helper
+    @mean = mean
+    @stddev = stddev
+    @valid = false
+    @next = 0
+  end
+
+  def rand
+    if @valid
+      @valid = false
+      @next
+    else
+      @valid = true
+      x, y = self.class.gaussian(@mean, @stddev, @rand_helper)
+      @next = y
+      x
+    end
+  end
+
+  private
+
+  def self.gaussian(mean, stddev, rand)
+    theta = 2 * Math::PI * rand.call
+    rho = Math.sqrt(-2 * Math.log(1 - rand.call))
+    scale = stddev * rho
+    x = mean + scale * Math.cos(theta)
+    y = mean + scale * Math.sin(theta)
+    return x, y
+  end
+end
+
+
+# Using the RandomGaussian Class to generate
+# random temperature and humidity that is normally
+# distributed
+temp = RandomGaussian.new(30, 0.2)
+humidity = RandomGaussian.new(40, 1)
+
+
+# The UDP Client
+client = UDPSocket.new
+client.connect('0.0.0.0', 1234)
+
+
+loop do
+  # generating temp and humidity
+  payload = {
+    temp: temp.rand,
+    humidity: humidity.rand
+  }.to_json
+
+  # sending it to the UDP server
+  client.send(payload, 0)
+
+  puts "Sending #{payload}"
+  sleep(3)
+end
